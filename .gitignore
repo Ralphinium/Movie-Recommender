@@ -137,3 +137,11 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# PyCharm
+.idea/
+
+# Data
+py_recommender/data/
+py_recommender/SVD_model/
+*.ipynb
