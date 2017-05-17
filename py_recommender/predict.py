@@ -1,7 +1,16 @@
+import csv
+
 import tensorflow as tf
 import numpy as np
 
+
 def predict(user, item):
+    """
+    Given the index of the user and the item, predicts what rating the user will give to the item.
+    :param user: 
+    :param item: 
+    :return: 
+    """
     with tf.variable_scope("biases", reuse=True):
         user_bias_tensor = tf.get_default_graph().get_tensor_by_name("biases/user_bias_tensor:0")
         item_bias_tensor = tf.get_default_graph().get_tensor_by_name("biases/item_bias_tensor:0")
@@ -23,6 +32,11 @@ def predict(user, item):
 
 
 def read_ratings_matrix(filename):
+    """
+    Read the ratings matrix.
+    :param filename: 
+    :return: 
+    """
     df = np.loadtxt(filename, delimiter=",")
     return df
 
@@ -60,21 +74,35 @@ def cos_sim_df(df, x):
     return max_sim, max_id
 
 if __name__ == "__main__":
-    ratings = read_ratings_matrix("./data/user_ratings_matrix.csv")
-    test = np.zeros(3952)
+    # Read in the ratings matrix csv as a 2D numpy array.
+    ratings = read_ratings_matrix(r"C:\Users\user\Documents\PyProjects\MovieRecommender\py_recommender\data\ml-latest"
+                                  r"-100k\ratings_matrix.csv")
+
+    # Create a dummy user.
+    test = np.zeros(9124)
     test[0] = 0.853154
     test[47] = 0.853154
     test[149] = 0.853154
 
-    _, sim_id = cos_sim_df(ratings, test)
-    print(sim_id)
+    # Find the user most similar to our dummy user.
+    sim, sim_id = cos_sim_df(ratings, test)
+    print(sim, sim_id)
 
-    ratings = []
-    print("Predicting")
+    # Get the dictionary of the top movies.
+    top_movies = {}
+    with open(r'.\data\ml-latest-100k\topmovies.csv') as movies:
+        reader = csv.reader(movies)
+        next(reader, None)
+        top_movies = {int(rows[0]): rows[1] for rows in reader}
+
+    # Predict the ratings of our dummy user on the top movies, using the most similar user.
+    ratings = {}
+    print("Predicting.")
     sess = tf.Session()
-    saver = tf.train.import_meta_graph('./SVD_model/model-90000.meta')
+    saver = tf.train.import_meta_graph('./SVD_model/model-9000.meta')
     ckpt = tf.train.get_checkpoint_state('./SVD_model/')
     saver.restore(sess, tf.train.latest_checkpoint('./SVD_model'))
-    for i in range(0, 3952):
-        ratings.append(sess.run(predict(sim_id, i)))
+    for i in top_movies.keys():
+        ratings[i] = sess.run(predict(sim_id, i))
 
+    print(ratings)

@@ -1,0 +1,7 @@
+{
+  "name": "movie-recommender",
+  "main": "main.js",
+  "dependencies": {
+    "bootstrap": "3.3.7"
+  }
+}

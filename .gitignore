@@ -145,3 +145,7 @@ $RECYCLE.BIN/
 py_recommender/data/
 py_recommender/SVD_model/
 *.ipynb
+
+# Node
+/node_modules/
+/assets/img/
